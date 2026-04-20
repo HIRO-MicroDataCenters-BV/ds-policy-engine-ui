@@ -7,13 +7,19 @@
   <link rel="stylesheet" href="./css/styles.css" />
   <style>
     /* Self-contained styling — this page isn't rendered through the app shell,
-       so we define a minimal readable layout on top of the shared CSS vars. */
+       so we define a minimal readable layout on top of the shared CSS vars.
+       The dashboard's styles.css sets `body { height:100vh; overflow:hidden }`
+       (needed for its fixed-sidebar layout). Override here so the guide
+       actually scrolls. !important is required because the dashboard CSS
+       loads before this block. */
     html, body {
       background: var(--bg, #fff);
       color: var(--text, #111);
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       line-height: 1.6;
+      height: auto !important;
+      overflow: auto !important;
     }
     .guide-shell {
       max-width: 880px;
