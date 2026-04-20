@@ -24,6 +24,8 @@ jobs:
       - name: Basic sanity checks
         run: |
           test -f src/index.html
+          test -f src/help.html
+          test -f docs/USER_GUIDE.md
           test -f src/config.template.js
           test -f nginx.conf.template
           test -f Dockerfile

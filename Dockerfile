@@ -5,6 +5,8 @@ FROM nginx:1.27-alpine
 # render that runs at container start (see docker-entrypoint.d/05-render-nginx-conf.sh).
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 COPY src/ /usr/share/nginx/html/
+# Canonical user guide source — served at /USER_GUIDE.md and fetched by help.html.
+COPY docs/USER_GUIDE.md /usr/share/nginx/html/USER_GUIDE.md
 COPY docker-entrypoint.d/05-render-nginx-conf.sh /docker-entrypoint.d/05-render-nginx-conf.sh
 COPY docker-entrypoint.d/10-render-config.sh /docker-entrypoint.d/10-render-config.sh
 RUN chmod +x /docker-entrypoint.d/05-render-nginx-conf.sh \

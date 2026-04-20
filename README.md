@@ -1,6 +1,8 @@
 # ds-policy-engine-ui
 
-Static web UI (vanilla HTML/CSS/ES modules) for [ds-policy-engine](https://github.com/HIRO-MicroDataCenters-BV/ds-policy-engine). Served from an nginx:alpine image; the backend URL is injected at container start via `$API_BASE_URL`.
+Static web UI (vanilla HTML/CSS/ES modules) for [ds-policy-engine](https://github.com/HIRO-MicroDataCenters-BV/ds-policy-engine). Served from an nginx:alpine image that reverse-proxies `/api`, `/health`, `/docs` to the in-cluster backend — so the browser only ever talks to one origin (zero CORS).
+
+> **New users: read the [User Guide](docs/USER_GUIDE.md)** — covers every screen, how to call `/evaluate` from your own service, and troubleshooting. Same content is reachable in-app from the "User Guide" link at the bottom of the sidebar.
 
 ## Layout
 
