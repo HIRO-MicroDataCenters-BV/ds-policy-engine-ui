@@ -5,6 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Policy Engine — User Guide</title>
   <link rel="stylesheet" href="./css/styles.css" />
+  <!-- Theme sync — pick up the dashboard's choice (localStorage.ds-theme,
+       written by app.js setTheme()) and apply the same data-theme attribute
+       the main CSS keys off. Inline in <head> so there's no flash. -->
+  <script>
+    (function () {
+      function resolve() {
+        var saved = localStorage.getItem('ds-theme') || 'system';
+        if (saved === 'system') {
+          return window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+        }
+        return saved;
+      }
+      function apply() {
+        document.documentElement.setAttribute('data-theme', resolve());
+      }
+      apply();
+      // Follow the OS when "system" is chosen.
+      window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', apply);
+      // Follow the dashboard's live changes when opened in a sibling tab.
+      window.addEventListener('storage', function (e) { if (e.key === 'ds-theme') apply(); });
+    })();
+  </script>
   <style>
     /* Self-contained styling — this page isn't rendered through the app shell,
        so we define a minimal readable layout on top of the shared CSS vars.
