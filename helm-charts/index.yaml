@@ -2,6 +2,22 @@ apiVersion: v1
 entries:
   ds-policy-engine-ui:
   - apiVersion: v2
+    appVersion: 0.1.0-dev.9.develop.26457311
+    created: "2026-04-20T08:37:01.155970269Z"
+    description: Static UI for ds-policy-engine (nginx)
+    digest: 8249d4f19a3f7d8c7a3cc95cfdf13df82cd0674b7f4849c795f1b6d2907e8e90
+    keywords:
+    - ui
+    - policy
+    - nginx
+    maintainers:
+    - name: HIRO-MicroDataCenters
+    name: ds-policy-engine-ui
+    type: application
+    urls:
+    - https://HIRO-MicroDataCenters-BV.github.io/ds-policy-engine-ui/helm-charts/ds-policy-engine-ui-0.1.0-dev.9.develop.26457311.tgz
+    version: 0.1.0-dev.9.develop.26457311
+  - apiVersion: v2
     appVersion: 0.1.0-dev.8.develop.de63d1df
     created: "2026-04-20T08:32:53.729253398Z"
     description: Static UI for ds-policy-engine (nginx)
@@ -113,4 +129,4 @@ entries:
     urls:
     - https://HIRO-MicroDataCenters-BV.github.io/ds-policy-engine-ui/helm-charts/ds-policy-engine-ui-0.1.0-dev.2.develop.e8f0efaa.tgz
     version: 0.1.0-dev.2.develop.e8f0efaa
-generated: "2026-04-20T08:32:53.728664707Z"
+generated: "2026-04-20T08:37:01.155429476Z"
