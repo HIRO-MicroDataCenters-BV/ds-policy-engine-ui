@@ -276,11 +276,17 @@ async function exportRules(format) {
     } else if (format === 'csv') {
       const resp = await fetch('/api/v1/rules/export/csv');
       const text = await resp.text();
+      if (!resp.ok) {
+        throw new Error(`CSV export failed (${resp.status}): ${text.slice(0, 200)}`);
+      }
       const blob = new Blob([text], { type: 'text/csv' });
       downloadBlob(blob, `policy-rules-${dateStr}.csv`);
     } else if (format === 'rego') {
       const resp = await fetch('/api/v1/rules/export/rego');
       const text = await resp.text();
+      if (!resp.ok) {
+        throw new Error(`Rego export failed (${resp.status}): ${text.slice(0, 200)}`);
+      }
       const blob = new Blob([text], { type: 'text/plain' });
       downloadBlob(blob, `policy-${dateStr}.rego`);
     }
@@ -326,11 +332,14 @@ async function importRules() {
       });
     } else {
       const data = JSON.parse(text);
-      const rules = data.rules || data;
+      const rules = data.rules ?? data;
+      if (!Array.isArray(rules)) {
+        throw new Error('JSON import must be an array of rules or an object with a "rules" array');
+      }
       json = await apiFetch('/api/v1/rules/import/json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rules: Array.isArray(rules) ? rules : [], mode }),
+        body: JSON.stringify({ rules, mode }),
       });
     }
 

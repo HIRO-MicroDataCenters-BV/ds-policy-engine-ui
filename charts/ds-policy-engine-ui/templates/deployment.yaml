@@ -44,6 +44,11 @@ spec:
               containerPort: {{ .Values.container.port }}
               protocol: TCP
           env:
+            # Backend URL nginx reverse-proxies to (Option B: same-origin UI).
+            - name: BACKEND_URL
+              value: {{ .Values.backend.url | quote }}
+            # Optional: set to a full origin to make the UI call a different
+            # backend directly, bypassing the nginx proxy. Empty = same-origin.
             - name: API_BASE_URL
               value: {{ .Values.config.apiBaseUrl | quote }}
             {{- with .Values.extraEnv }}

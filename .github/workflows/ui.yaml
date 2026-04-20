@@ -42,6 +42,10 @@ jobs:
 
   build:
     needs: [lint]
+    # Only publish artifacts (GHCR image, Helm chart, GH release) on push
+    # events — never on pull_request (avoids polluting registries and
+    # breaking fork PRs that lack write permissions).
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: write

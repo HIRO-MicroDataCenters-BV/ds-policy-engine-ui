@@ -484,7 +484,7 @@ function renderLogEntry(entry) {
     <span class="log-time">${entry.time}</span>
     <span class="log-status ${cls}">${isAllow ? 'ALLOW' : 'DENY'}</span>
     <span style="margin-left:6px">role=${esc(entry.role)}</span>
-    <div class="log-detail">institute=${esc(entry.institute)} permissions=[${(entry.permissions || []).join(', ')}]</div>
+    <div class="log-detail">institute=${esc(entry.institute)} permissions=[${(entry.permissions || []).map(esc).join(', ')}]</div>
   </div>`;
 }
 

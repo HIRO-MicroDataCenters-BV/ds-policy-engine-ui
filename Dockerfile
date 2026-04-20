@@ -1,11 +1,18 @@
 FROM nginx:1.27-alpine
 
-# Non-root nginx needs writable /tmp, /var/cache/nginx, /var/run (default behaviour
-# of the alpine image is fine; we only override config + html + entrypoint).
-COPY nginx.conf /etc/nginx/nginx.conf
+# nginx:alpine already ships envsubst (part of gettext in base image).
+# We override the stock nginx.conf with our own via the template -> /etc/nginx/nginx.conf
+# render that runs at container start (see docker-entrypoint.d/05-render-nginx-conf.sh).
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
 COPY src/ /usr/share/nginx/html/
+COPY docker-entrypoint.d/05-render-nginx-conf.sh /docker-entrypoint.d/05-render-nginx-conf.sh
 COPY docker-entrypoint.d/10-render-config.sh /docker-entrypoint.d/10-render-config.sh
-RUN chmod +x /docker-entrypoint.d/10-render-config.sh
+RUN chmod +x /docker-entrypoint.d/05-render-nginx-conf.sh \
+           /docker-entrypoint.d/10-render-config.sh
+
+# Defaults — overridable at runtime via chart / compose.
+ENV BACKEND_URL="http://ds-policy-engine:8000"
+ENV API_BASE_URL=""
 
 EXPOSE 8080
 # CMD comes from the base nginx image: nginx -g 'daemon off;'

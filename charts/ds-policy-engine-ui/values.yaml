@@ -40,16 +40,23 @@ readinessProbe:
   periodSeconds: 10
 
 ingress:
-  enabled: true
+  enabled: false
   className: ""
   annotations: {}
   host: ds-policy-engine-ui.nextgen.hiro-develop.nl
   path: /
   pathType: Prefix
 
-# Backend URL the UI calls — injected into config.js at container start.
+# Backend that nginx reverse-proxies /api, /health, /docs, etc. to.
+# In-cluster short name works when backend is in the same namespace.
+backend:
+  url: http://ds-policy-engine:8000
+
+# Optional: set to a full origin string to make the UI call a different host
+# directly instead of using the same-origin nginx proxy. Leave empty for
+# the standard Option B flow.
 config:
-  apiBaseUrl: http://ds-policy-engine.nextgen.hiro-develop.nl
+  apiBaseUrl: ""
 
 resources:
   requests:

@@ -3,7 +3,9 @@
 set -o errexit
 set -o nounset
 
-ROOT="${GITHUB_WORKSPACE}"
+# Default to the current repo root when run outside GitHub Actions
+# (local debugging, etc). GITHUB_WORKSPACE is always set in CI.
+ROOT="${GITHUB_WORKSPACE:-$(pwd)}"
 CHART_NAME="ds-policy-engine-ui"
 CHART_PATH_PREFIX="./charts"
 

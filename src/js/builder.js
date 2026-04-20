@@ -236,7 +236,7 @@ function renderRuleEditor() {
       </div>
     </div>
     <div id="r-perms" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">
-      ${perms.map(p => `<span class="perm-tag">${esc(p)}<span class="x" data-perm="${p}">&#10005;</span></span>`).join('')}
+      ${perms.map(p => `<span class="perm-tag">${esc(p)}<span class="x" data-perm="${esc(p)}">&#10005;</span></span>`).join('')}
     </div>
     <div class="section">
       <div class="section-title">Rego Preview</div>
@@ -723,10 +723,19 @@ function initComboBox(boxId, inputId, dropdownId) {
     }
   });
 
-  // Hide on outside click
-  document.addEventListener('click', (e) => {
-    if (!box.contains(e.target)) hideDropdown();
-  });
+  // Hide on outside click — use a one-shot delegated global handler so we
+  // don't accumulate document listeners across re-renders. We track the set
+  // of active combobox instances and install the listener once.
+  if (!window._dsComboBoxes) {
+    window._dsComboBoxes = new Set();
+    document.addEventListener('click', (e) => {
+      window._dsComboBoxes.forEach((cb) => {
+        if (!cb.box.contains(e.target)) cb.hide();
+      });
+    });
+  }
+  const entry = { box, hide: hideDropdown };
+  window._dsComboBoxes.add(entry);
 }
 
 // ================================================================
@@ -744,32 +753,34 @@ function initResizableColumn() {
   const grid = handle?.parentElement;
   if (!handle || !grid) return;
 
-  let dragging = false;
-  let startX = 0;
-  let startW = ruleListWidth;
+  // Shared drag state across re-renders so we can install the document
+  // mousemove/mouseup listeners exactly once.
+  if (!window._dsResize) {
+    const st = window._dsResize = { dragging: false, startX: 0, startW: 0, grid: null };
+    document.addEventListener('mousemove', (e) => {
+      if (!st.dragging || !st.grid) return;
+      const delta = e.clientX - st.startX;
+      ruleListWidth = Math.max(220, Math.min(600, st.startW + delta));
+      st.grid.style.gridTemplateColumns = `${ruleListWidth}px 6px 1fr`;
+    });
+    document.addEventListener('mouseup', () => {
+      if (st.dragging) {
+        st.dragging = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    });
+  }
 
   handle.addEventListener('mousedown', (e) => {
     e.preventDefault();
-    dragging = true;
-    startX = e.clientX;
-    startW = ruleListWidth;
+    const st = window._dsResize;
+    st.dragging = true;
+    st.startX = e.clientX;
+    st.startW = ruleListWidth;
+    st.grid = grid;
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
-  });
-
-  document.addEventListener('mousemove', (e) => {
-    if (!dragging) return;
-    const delta = e.clientX - startX;
-    ruleListWidth = Math.max(220, Math.min(600, startW + delta));
-    grid.style.gridTemplateColumns = `${ruleListWidth}px 6px 1fr`;
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (dragging) {
-      dragging = false;
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    }
   });
 }
 
