@@ -120,6 +120,33 @@
           .replace(/\]\(\.\.\/CLAUDE\.md\)/g, '](https://github.com/HIRO-MicroDataCenters-BV/ds-policy-engine-ui/blob/main/CLAUDE.md)');
         el.classList.remove('loading');
         el.innerHTML = marked.parse(cleaned);
+
+        // marked@14 does NOT auto-assign ids on headings, so the TOC's
+        // `#what-the-policy-engine-is`-style links have no targets.
+        // Assign slugified ids to every heading so the Contents section works.
+        function slugify(text) {
+          return text
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9\s-]/g, '')   // strip punctuation
+            .replace(/\s+/g, '-')            // spaces -> dashes
+            .replace(/-+/g, '-');            // collapse runs
+        }
+        const used = new Set();
+        el.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((h) => {
+          let base = slugify(h.textContent || '');
+          if (!base) return;
+          let id = base, n = 1;
+          while (used.has(id)) { id = `${base}-${n++}`; }
+          used.add(id);
+          h.id = id;
+        });
+
+        // If the page was loaded with a hash, jump to it now that targets exist.
+        if (location.hash) {
+          const target = document.getElementById(location.hash.slice(1));
+          if (target) target.scrollIntoView();
+        }
       } catch (e) {
         el.classList.remove('loading');
         el.classList.add('error');
