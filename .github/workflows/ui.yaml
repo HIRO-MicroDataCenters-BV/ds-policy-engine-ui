@@ -21,12 +21,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate HTML (htmlhint)
-        uses: thibaudcolas/htmlhint-action@v1
-        with:
-          path: "src/**/*.html"
-        continue-on-error: true
-
       - name: Basic sanity checks
         run: |
           test -f src/index.html
@@ -35,6 +29,16 @@ jobs:
           test -f Dockerfile
           # Make sure the runtime-config placeholder still exists in the template.
           grep -q "__API_BASE_URL__" src/config.template.js
+          # Make sure all expected JS modules are present.
+          for m in app tester builder manager database reference; do
+            test -f "src/js/${m}.js" || { echo "Missing src/js/${m}.js"; exit 1; }
+          done
+
+      - name: Validate Dockerfile with hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: error
 
   build:
     needs: [lint]
