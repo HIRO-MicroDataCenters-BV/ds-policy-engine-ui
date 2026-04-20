@@ -37,7 +37,8 @@
     .guide-shell h3 { font-size: 1.25em; }
     .guide-shell p, .guide-shell li { font-size: 15px; }
     .guide-shell pre {
-      background: var(--bg-secondary, #f6f8fa);
+      background: var(--surface2, #f0f2f5);
+      color: var(--text, #111);
       border: 1px solid var(--border, #e5e7eb);
       border-radius: 6px;
       padding: 12px 14px;
@@ -45,12 +46,13 @@
       font-size: 13px;
     }
     .guide-shell code {
-      background: var(--bg-secondary, #f6f8fa);
+      background: var(--surface2, #f0f2f5);
+      color: var(--text, #111);
       padding: 1px 5px;
       border-radius: 4px;
       font-size: 0.9em;
     }
-    .guide-shell pre code { background: transparent; padding: 0; }
+    .guide-shell pre code { background: transparent; padding: 0; color: inherit; }
     .guide-shell table {
       border-collapse: collapse;
       width: 100%;
@@ -63,7 +65,7 @@
       text-align: left;
       vertical-align: top;
     }
-    .guide-shell th { background: var(--bg-secondary, #f6f8fa); }
+    .guide-shell th { background: var(--surface2, #f0f2f5); color: var(--text, #111); font-weight: 600; }
     .guide-shell blockquote {
       border-left: 4px solid var(--border, #e5e7eb);
       padding: 0 1em;
