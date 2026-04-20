@@ -74,6 +74,12 @@ button{cursor:pointer;font-family:inherit}
 .theme-btn svg{width:14px;height:14px}
 .sidebar.collapsed .theme-switcher{flex-direction:column}
 .sidebar.collapsed .theme-btn span{display:none}
+.help-link{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;
+  font-size:12px;color:var(--text-secondary);text-decoration:none;cursor:pointer}
+.help-link:hover{background:var(--surface2);color:var(--text)}
+.help-link svg{flex-shrink:0}
+.sidebar.collapsed .help-link span{display:none}
+.sidebar.collapsed .help-link{justify-content:center}
 .version{font-size:11px;color:var(--text-secondary);text-align:center}
 
 /* ========== MAIN CONTENT ========== */
