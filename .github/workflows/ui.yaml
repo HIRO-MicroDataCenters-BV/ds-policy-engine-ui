@@ -25,10 +25,13 @@ jobs:
         run: |
           test -f src/index.html
           test -f src/config.template.js
-          test -f nginx.conf
+          test -f nginx.conf.template
           test -f Dockerfile
-          # Make sure the runtime-config placeholder still exists in the template.
-          grep -q "__API_BASE_URL__" src/config.template.js
+          test -f docker-entrypoint.d/05-render-nginx-conf.sh
+          test -f docker-entrypoint.d/10-render-config.sh
+          # Runtime-config placeholders (envsubst) must still be present.
+          grep -qF '${API_BASE_URL}' src/config.template.js
+          grep -qF '${BACKEND_URL}' nginx.conf.template
           # Make sure all expected JS modules are present.
           for m in app tester builder manager database reference; do
             test -f "src/js/${m}.js" || { echo "Missing src/js/${m}.js"; exit 1; }
