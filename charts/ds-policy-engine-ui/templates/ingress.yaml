@@ -2,7 +2,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "ds-policy-engine-ui.fullname" . }}
+  # Naming convention from sibling services (ds-search-ingress, ds-catalog-ingress, etc.)
+  name: {{ include "ds-policy-engine-ui.fullname" . }}-ingress
   namespace: {{ include "ds-policy-engine-ui.namespace" . }}
   labels:
     {{- include "ds-policy-engine-ui.labels" . | nindent 4 }}
@@ -13,6 +14,12 @@ metadata:
 spec:
   {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host | quote }}
+      secretName: {{ .Values.ingress.tls.secretName | quote }}
   {{- end }}
   rules:
     - host: {{ .Values.ingress.host | quote }}
