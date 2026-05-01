@@ -41,11 +41,18 @@ readinessProbe:
 
 ingress:
   enabled: false
-  className: ""
-  annotations: {}
+  className: nginx
+  # cert-manager provisions a per-host cert when this annotation is present
+  # and tls.secretName is set. Same pattern used by ds-search, ds-catalog, etc.
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
   host: ds-policy-engine-ui.nextgen.hiro-develop.nl
   path: /
   pathType: Prefix
+  tls:
+    enabled: true
+    # cert-manager will create / refresh this Secret in the install namespace.
+    secretName: ds-policy-engine-ui-tls-secret
 
 # Backend that nginx reverse-proxies /api, /health, /docs, etc. to.
 # In-cluster short name works when backend is in the same namespace.
