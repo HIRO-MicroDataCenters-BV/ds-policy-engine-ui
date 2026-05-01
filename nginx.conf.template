@@ -1,0 +1,100 @@
+worker_processes auto;
+pid /tmp/nginx.pid;
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  include       /etc/nginx/mime.types;
+  default_type  application/octet-stream;
+
+  sendfile on;
+  tcp_nopush on;
+  tcp_nodelay on;
+  keepalive_timeout 65;
+
+  gzip on;
+  gzip_vary on;
+  gzip_proxied any;
+  gzip_min_length 256;
+  gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+
+  access_log /dev/stdout;
+  error_log  /dev/stderr warn;
+
+  # Upstream to the policy-engine backend. $BACKEND_URL is envsubst'd at container
+  # start from the BACKEND_URL environment variable (default http://ds-policy-engine:8000).
+  # Resolve DNS at request-time so Kubernetes Service DNS changes are picked up.
+  resolver 127.0.0.11 ipv6=off valid=30s;
+
+  server {
+    listen 8080 default_server;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # ---------- Proxy backend endpoints (same-origin, zero CORS) ----------
+    # Every path the browser needs to reach on the backend is listed here.
+    # Paths NOT listed below fall through to the UI static files below.
+
+    location /api/ {
+      proxy_pass         ${BACKEND_URL}/api/;
+      proxy_http_version 1.1;
+      proxy_set_header   Host              $host;
+      proxy_set_header   X-Real-IP         $remote_addr;
+      proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+      proxy_set_header   X-Forwarded-Proto $scheme;
+      proxy_read_timeout 60s;
+    }
+
+    location = /health {
+      proxy_pass       ${BACKEND_URL}/health;
+      proxy_set_header Host $host;
+    }
+
+    location = /docs {
+      proxy_pass       ${BACKEND_URL}/docs;
+      proxy_set_header Host $host;
+    }
+
+    location = /redoc {
+      proxy_pass       ${BACKEND_URL}/redoc;
+      proxy_set_header Host $host;
+    }
+
+    location = /openapi.json {
+      proxy_pass       ${BACKEND_URL}/openapi.json;
+      proxy_set_header Host $host;
+    }
+
+    # ---------- Static UI ----------
+
+    # nginx self-health for pod readiness/liveness probes.
+    location = /healthz {
+      access_log off;
+      add_header Content-Type text/plain;
+      return 200 "ok\n";
+    }
+
+    # config.js is generated at container start — never cache.
+    location = /config.js {
+      add_header Cache-Control "no-store, no-cache, must-revalidate";
+      expires 0;
+    }
+
+    # Short-lived cache for static assets. Filenames are NOT content-hashed
+    # (no bundler), so long/immutable caching would serve stale JS/CSS after
+    # a deploy. TODO: when a bundler is introduced, switch to hashed filenames
+    # and re-enable max-age=1y, immutable.
+    location ~* \.(css|js|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf)$ {
+      expires 1h;
+      add_header Cache-Control "public, max-age=3600, must-revalidate";
+    }
+
+    # SPA fallback: unknown paths serve index.html.
+    location / {
+      try_files $uri $uri/ /index.html;
+    }
+  }
+}

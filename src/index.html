@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Policy Engine</title>
+<link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+<!-- ========== TOP NAVIGATION ========== -->
+<div class="topbar">
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 8C0 3.58172 3.58172 0 8 0H24C28.4183 0 32 3.58172 32 8V24C32 28.4183 28.4183 32 24 32H8C3.58172 32 0 28.4183 0 24V8Z" fill="#18181B"/>
+    <path d="M10.5277 24C10.3219 23.4747 10.2017 22.9248 10.2017 22.3673C10.2017 19.6926 13.0844 18.2261 16 16.6888M21.4723 24C21.6781 23.4747 21.7983 22.9248 21.7983 22.3673C21.7983 19.6926 18.9156 18.2261 16 16.6888M16 16.6888C13.0172 15.116 10 13.1312 10 10.379C10 9.72595 10.1513 8 12.1681 8C13.7815 8 15.395 9.11953 16 9.6793C16.605 9.11953 18.2185 8 19.8319 8C21.8487 8 22 9.72595 22 10.379C22 13.1312 18.9828 15.116 16 16.6888ZM14.5 20.543H17.5M13.5 23.379H18.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <h1>Policy Engine</h1>
+</div>
+
+<!-- ========== LAYOUT ========== -->
+<div class="layout">
+
+<!-- ========== SIDEBAR ========== -->
+<div class="sidebar" id="sidebar">
+  <button class="sidebar-toggle" onclick="toggleSidebar()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    <span>Menu</span>
+  </button>
+
+  <div class="sidebar-nav" id="sidebar-nav">
+    <!-- Nav items rendered by JS (draggable) -->
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="theme-switcher" id="theme-switcher">
+      <button class="theme-btn" data-theme="light" onclick="setTheme('light')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <span>Light</span>
+      </button>
+      <button class="theme-btn" data-theme="dark" onclick="setTheme('dark')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <span>Dark</span>
+      </button>
+      <button class="theme-btn" data-theme="system" onclick="setTheme('system')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        <span>Auto</span>
+      </button>
+    </div>
+    <a href="./help.html" target="_blank" rel="noopener" class="help-link" title="Open the User Guide in a new tab">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>User Guide</span>
+    </a>
+    <div class="version" id="node-label" style="font-size:10px;opacity:0.6;margin-bottom:2px">ds-policy-engine.local</div>
+    <div class="version" id="version-label">v0.1.0</div>
+  </div>
+</div>
+
+<!-- ========== MAIN CONTENT ========== -->
+<div class="content" id="main-content">
+  <!-- Rendered by JS based on active tab -->
+</div>
+
+</div><!-- /layout -->
+
+<!-- ========== MODALS ========== -->
+<div class="modal-overlay" id="deploy-modal">
+  <div class="modal"><div id="deploy-modal-body"></div></div>
+</div>
+
+<!-- ========== RUNTIME CONFIG ========== -->
+<!-- config.js is generated at container start from $API_BASE_URL (see Dockerfile). -->
+<!-- It sets window.APP_CONFIG and monkey-patches fetch() to prepend the backend URL. -->
+<script src="./config.js"></script>
+
+<!-- ========== JS MODULES ========== -->
+<script type="module" src="./js/app.js"></script>
+<script type="module" src="./js/tester.js"></script>
+<script type="module" src="./js/builder.js"></script>
+<script type="module" src="./js/manager.js"></script>
+<script type="module" src="./js/database.js"></script>
+<script type="module" src="./js/reference.js"></script>
+</body>
+</html>

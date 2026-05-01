@@ -1,0 +1,21 @@
+services:
+  ds-policy-engine-ui:
+    build: .
+    container_name: ds-policy-engine-ui
+    hostname: ds-policy-engine-ui
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${UI_PORT:-8080}:8080"
+    environment:
+      # Option B: browser only talks to this pod (same-origin). nginx proxies
+      # /api, /health, /docs, etc. to $BACKEND_URL over the container network.
+      # Default targets the host gateway so the UI finds the backend that's
+      # running via ds-policy-engine's own docker-compose on localhost:8000.
+      # Override if backend is on a different port or a real network:
+      #   BACKEND_URL=http://host.docker.internal:8100 docker compose up
+      BACKEND_URL: ${BACKEND_URL:-http://host.docker.internal:8000}
+      # Same-origin — leave empty. Set to a full URL only if you want to
+      # bypass the nginx proxy and call a different origin directly.
+      API_BASE_URL: ${API_BASE_URL:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

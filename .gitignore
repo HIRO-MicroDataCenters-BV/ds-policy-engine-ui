@@ -1,0 +1,40 @@
+# --- Node / tooling (not used but common drift guard) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- IDE ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Secrets / local env ---
+.env
+.env.local
+
+# --- Helm ---
+.helm/
+charts/**/*.tgz
+
+# --- CI scratch files produced by tools/version.sh ---
+VERSION_APP
+VERSION_CHART
+VERSION_DOCKER
+DOCKER_IMAGES
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Local compose overrides ---
+docker-compose.override.yml
+
+# --- Rendered runtime config (generated at container start, never committed) ---
+src/config.js

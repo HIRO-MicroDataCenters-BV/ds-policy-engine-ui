@@ -1,0 +1,122 @@
+name: Test and build UI
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  DOCKER_IMAGE_NAME: hiro-microdatacenters-bv/ds-policy-engine-ui
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Basic sanity checks
+        run: |
+          test -f src/index.html
+          test -f src/help.html
+          test -f docs/USER_GUIDE.md
+          test -f src/config.template.js
+          test -f nginx.conf.template
+          test -f Dockerfile
+          test -f docker-entrypoint.d/05-render-nginx-conf.sh
+          test -f docker-entrypoint.d/10-render-config.sh
+          # Runtime-config placeholders (envsubst) must still be present.
+          grep -qF '${API_BASE_URL}' src/config.template.js
+          grep -qF '${BACKEND_URL}' nginx.conf.template
+          # Make sure all expected JS modules are present.
+          for m in app tester builder manager database reference; do
+            test -f "src/js/${m}.js" || { echo "Missing src/js/${m}.js"; exit 1; }
+          done
+
+      - name: Validate Dockerfile with hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: error
+
+  build:
+    needs: [lint]
+    # Only publish artifacts (GHCR image, Helm chart, GH release) on push
+    # events — never on pull_request (avoids polluting registries and
+    # breaking fork PRs that lack write permissions).
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Make versions
+        run: |
+          chmod +x ./tools/version.sh
+          ./tools/version.sh "${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}"
+          echo "VERSION_APP=$(cat ./VERSION_APP)" >> $GITHUB_ENV
+          echo "DOCKER_IMAGES=$(cat ./DOCKER_IMAGES)" >> $GITHUB_ENV
+          echo "DOCKER_TAGS=$(cat ./VERSION_DOCKER)" >> $GITHUB_ENV
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+          tags: ${{ env.DOCKER_TAGS }}
+
+      - name: Build and push docker image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ env.DOCKER_IMAGES }}
+          labels: ${{ steps.meta.outputs.labels }}
+          context: "."
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Create a github release
+        run: |
+          if gh release view "${{ env.VERSION_APP }}" >/dev/null 2>&1; then
+            echo "Release ${{ env.VERSION_APP }} already exists — skipping."
+          else
+            gh release create "${{ env.VERSION_APP }}"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Publish Helm charts
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          token: ${{ github.token }}
+          charts_dir: "./charts/"
+          target_dir: "./helm-charts/"
