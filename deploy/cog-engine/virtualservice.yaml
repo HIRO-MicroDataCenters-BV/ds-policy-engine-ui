@@ -1,0 +1,25 @@
+# Exposes the policy-engine UI at https://dashboard.cog.hiro-develop.nl/policy-engine-ui/
+# through the Istio kubeflow-gateway (same mechanism as /apidev and /policy-engine).
+# The prefix is stripped so nginx serves the SPA at root; static assets are relative
+# and the UI's API base is set to /policy-engine-ui (values.yaml) so /api calls resolve.
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ds-policy-engine-ui
+  namespace: kubeflow
+spec:
+  gateways:
+    - kubeflow/kubeflow-gateway
+  hosts:
+    - '*'
+  http:
+    - match:
+        - uri:
+            prefix: /policy-engine-ui/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            host: ds-policy-engine-ui.policy-engine.svc.cluster.local
+            port:
+              number: 80

@@ -1,0 +1,24 @@
+# ds-policy-engine-ui — Helm values for the cog-engine dev cluster.
+#
+# Served at https://dashboard.cog.hiro-develop.nl/policy-engine-ui/ via the Istio
+# kubeflow-gateway (virtualservice.yaml). The chart's nginx reverse-proxies /api,
+# /docs, /health to the backend, so the browser only ever talks to one origin.
+
+ingress:
+  enabled: false                 # exposed via Istio VirtualService, not nginx Ingress
+
+image:
+  repository: "ghcr.io/hiro-microdatacenters-bv/ds-policy-engine-ui"
+  tag: "0.1.0-dev.14.main.01f9219f"
+
+imagePullSecrets: []             # public on GHCR
+
+# The in-cluster policy-engine backend that nginx proxies /api, /docs, /health to.
+backend:
+  url: http://ds-policy-engine.policy-engine.svc.cluster.local:8000
+
+# Served under a sub-path, so the UI's API calls must be prefixed with it
+# (the VirtualService strips /policy-engine-ui before nginx). Static assets are
+# already relative, so only the API base needs this.
+config:
+  apiBaseUrl: "/policy-engine-ui"
